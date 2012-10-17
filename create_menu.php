@@ -6,6 +6,7 @@
  * git clone --recursive --branch master http://git.drupal.org/project/custom_menu.git
  */
  
+$theme = 'asuzen';
 
 //$result = db_query("SELECT nid FROM content_field_landing_links WHERE field_landing_links_url IS NOT NULL GROUP BY nid");
 // get nodes that have links in current revision
@@ -13,9 +14,15 @@ $result = db_query("Select l.nid, l.vid FROM content_field_landing_links l, node
 
 while ($row = db_fetch_object($result)) {
   create_page_menu($row->nid, $row->nid . '-menu', $row->nid . '_menu');
+  $bid = db_result(db_query("SELECT bid FROM {blocks} WHERE menu_name=''%s' AND theme='%s'", $menu_name, $theme))
+  db_query("INSERT INTO {content_field_navbar_menu} SET VALUES (%d, %d, %d)", $row->vid, $row->nid, $bid);
 }
 
 //create_page_menu(47, 'hmdp', 'HDMP');
+
+
+// Validate page is assigned proper menu
+// select c.field_navbar_menu_bid from content_field_navbar_menu c, node n where c.vid=n.vid AND c.field_navbar_menu_bid IS NOT NULL AND n.nid=48;
 
 
 function create_page_menu($nid, $menu_name, $menu_title) {
@@ -66,7 +73,7 @@ function create_page_menu($nid, $menu_name, $menu_title) {
 
 
   // Delete Menu and its links
-  $delete_links = TRUE;
+  //$delete_links = TRUE;
   //custom_menu_delete($menu_name, $delete_links);
   /*
   // Validate if menu exists
